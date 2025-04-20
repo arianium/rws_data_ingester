@@ -160,6 +160,9 @@ def export_to_html(report: str, file_path: str = "index.html") -> None:
         f'    <div class="container">\n'
         f"        <h1>🏊 Rijnhaven Swimming Advice</h1>\n"
         f'        <div>{report.replace(chr(10), "<br>")}</div>\n'
+        '        <div class="contribution">\n'
+        '            <p>If you have any suggestions or ideas, feel free to reach out to me on <a href="https://github.com/arianium/rws_data_ingester">GitHub</a>.</p>\n'
+        "        </div>\n"
         f'        <div class="timestamp">Last updated: {now}</div>\n'
         "    </div>\n"
         "</body>\n"
