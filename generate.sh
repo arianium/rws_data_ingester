@@ -2,7 +2,7 @@
 
 set -e
 
-source .venv/bin/activate
+source ./venv/bin/activate
 
 if [ -f .env ]; then
   export $(grep -v '^#' .env | xargs)
