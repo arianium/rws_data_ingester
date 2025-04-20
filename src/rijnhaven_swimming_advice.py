@@ -90,20 +90,18 @@ def create_prompt(water_data: Dict[str, Any], water_messages: Dict[str, Any]) ->
         f"- {msg['title']}: {msg['bannerText']}" for msg in water_messages["messages"]
     )
 
-    return f"""
-You are an assistant that gives advice about swimming in open water at Rijnhaven, Rotterdam.
+    return f"""You are an assistant that gives advice about swimming in open water at Rijnhaven, Rotterdam.
 You should consider water temperature, water level, wind speed, and official safety notices.
 
 Here is today's data:
-- Water temperature: {temp.get('data')} °C
+- Water temperature: {temp.get('data', 'N/A')} °C
 - Water level: {water_level} cm (relative to NAP)
-- Wind speed: {wind.get('data')} m/s
+- Wind speed: {wind.get('data', 'N/A')} m/s
 - Official safety messages:
 {messages}
 
-Please provide your recommendation in plain HTML format without any code block indicators or additional markdown. Include relevant emojis to enhance the message's friendliness and clarity. Make sure important information is emphasized with appropriate HTML tags (e.g., <strong> for bold text). Don't add the header, just the content.
-Also, mention that this is AI-generated content based on Rijkswaterstaat data, and its accuracy should be double-checked. Include a link to <a href="https://waterinfo.rws.nl" target="_blank">Rijkswaterstaat</a> for more information.
-""".strip()
+Please provide your recommendation in plain HTML format without code block indicators. Include relevant emojis. Use <strong> for important info. No header.
+Also mention this is AI-generated content based on Rijkswaterstaat data. Include link to <a href="https://waterinfo.rws.nl" target="_blank">Rijkswaterstaat</a>.""".strip()
 
 
 def get_llm_response(prompt: str) -> str:
@@ -132,61 +130,43 @@ def export_to_html(report: str, file_path: str = "index.html") -> None:
         file_path: Output path for the HTML file
     """
     now = datetime.datetime.now().strftime("%Y-%m-%d %H:%M")
-    html_content = f"""
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-            <meta charset="UTF-8">
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <title>Rijnhaven Swimming Advice</title>
-            <style>
-                body {{
-                    margin: 0;
-                    padding: 2em;
-                    font-family: "Segoe UI", sans-serif;
-                    background: #f7fbfe;
-                    color: #333;
-                }}
-                .container {{
-                    max-width: 800px;
-                    margin: auto;
-                    background: #fff;
-                    padding: 2em;
-                    border-radius: 12px;
-                    box-shadow: 0 4px 20px rgba(0,0,0,0.05);
-                }}
-                h1 {{
-                    color: #0077cc;
-                    font-size: 2em;
-                    margin-bottom: 0.5em;
-                }}
-                .timestamp {{
-                    margin-top: 2em;
-                    font-size: 0.9em;
-                    color: #777;
-                }}
-                .contribute-notice {{
-                    margin-top: 1.5em;
-                    font-size: 0.9em;
-                    color: #666;
-                }}
-            </style>
-        </head>
-        <body>
-            <div class="container">
-                <h1>🏊 Rijnhaven Swimming Advice</h1>
-                <div>{report.replace('\n', '<br>')}</div>
-                <div class="contribute-notice">
-                    Have ideas or want to contribute? Open issues on 
-                    <a href="https://github.com/arianium/rws_data_ingester" target="_blank">GitHub</a> 
-                    to help improve this service.
-                </div>
-                <div class="timestamp">Last updated: {now}</div>
-            </div>
-        </body>
-        </html>
-    """
-    Path(file_path).write_text(html_content.strip(), encoding="utf-8")
+
+    html_content = (
+        "<!DOCTYPE html>\n"
+        '<html lang="en">\n'
+        "<head>\n"
+        '    <meta charset="UTF-8">\n'
+        '    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n'
+        "    <title>Rijnhaven Swimming Advice</title>\n"
+        "    <style>\n"
+        "        body {\n"
+        "            margin: 0;\n"
+        "            padding: 2em;\n"
+        '            font-family: "Segoe UI", sans-serif;\n'
+        "            background: #f7fbfe;\n"
+        "            color: #333;\n"
+        "        }\n"
+        "        .container {\n"
+        "            max-width: 800px;\n"
+        "            margin: auto;\n"
+        "            background: #fff;\n"
+        "            padding: 2em;\n"
+        "            border-radius: 12px;\n"
+        "            box-shadow: 0 4px 20px rgba(0,0,0,0.05);\n"
+        "        }\n"
+        "    </style>\n"
+        "</head>\n"
+        "<body>\n"
+        f'    <div class="container">\n'
+        f"        <h1>🏊 Rijnhaven Swimming Advice</h1>\n"
+        f'        <div>{report.replace(chr(10), "<br>")}</div>\n'
+        f'        <div class="timestamp">Last updated: {now}</div>\n'
+        "    </div>\n"
+        "</body>\n"
+        "</html>"
+    )
+
+    Path(file_path).write_text(html_content, encoding="utf-8")
     logging.info(f"HTML report saved to: {file_path}")
 
 
